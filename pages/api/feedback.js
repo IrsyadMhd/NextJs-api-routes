@@ -1,6 +1,17 @@
 import fs from 'fs';
 import path from 'path';
 
+function getFilePath() {
+  return path.join(process.cwd(), 'data', 'feedback.json');
+}
+
+function getData(filePath) {
+  const fileData = fs.readFileSync(filePath);
+  const data = JSON.parse(fileData);
+
+  return data;
+}
+
 function handler(req, res) {
   if (req.method === 'POST') {
     const email = req.body.email;
@@ -10,14 +21,16 @@ function handler(req, res) {
 
     // store data to database or file
 
-    const filePath = path.join(process.cwd(), 'data', 'feedback.json');
-    const fileData = fs.readFileSync(filePath);
-    const data = JSON.parse(fileData);
+    const filePath = getFilePath();
+    const data = getData(filePath);
     data.push(newFeedback);
     fs.writeFileSync(filePath, JSON.stringify(data));
     res.status(201).json({ message: 'success' });
   } else {
-    res.status(200).json({ message: 'it is running...' });
+    const filePath = getFilePath();
+    const data = getData(filePath);
+
+    res.status(200).json({ feedback: data });
   }
 }
 
